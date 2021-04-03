@@ -17,7 +17,7 @@ pub trait Format {
     fn name(&self, size: u64) -> &'static str;
 }
 
-#[derive(Debug, Default)]
+#[derive(Copy, Clone, Debug, Default)]
 pub struct Conventional;
 
 impl Format for Conventional {
@@ -40,7 +40,7 @@ impl Format for Conventional {
     }
 }
 
-#[derive(Debug, Default)]
+#[derive(Copy, Clone, Debug, Default)]
 pub struct Decimal;
 
 impl Format for Decimal {
