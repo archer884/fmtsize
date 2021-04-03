@@ -1,3 +1,14 @@
+//! # fmtsize
+//!
+//! `fmtsize` provides human-readable formatting for things like file sizes. It
+//! attempts to find the largest shorthand size possible for a given value,
+//! although it's limited to "gigabytes." Someday we may upgrade to terabytes. :)
+//! 
+//! ```
+//! # use fmtsize::{Conventional, FmtSize};
+//! println!("{}", 492_752_310_u64.fmt_size(Conventional)); // 469.93 MB
+//! ```
+
 use std::fmt::{self, Display};
 
 mod conventional {
@@ -12,11 +23,23 @@ mod decimal {
     pub const GIGABYTE: u64 = 1_000_000_000;
 }
 
+/// Used to format values in accordance with
+/// some set of named sizes and constants.
 pub trait Format {
+    /// The appropriate divisor for a given value size.
+    ///
+    /// E.g., to derive the number of megabytes in a given file, divide
+    /// file size by the size in bytes of one megabyte.
     fn divisor(&self, size: u64) -> u64;
+
+    /// The appropriate name for a given value size.
+    ///
+    /// For instance, something larger than a single megabyte and smaller than
+    /// one gigabyte will be called "megabytes."
     fn name(&self, size: u64) -> &'static str;
 }
 
+/// Old-school formatting: a megabyte is 1024 kilobytes, dammit!
 #[derive(Copy, Clone, Debug, Default)]
 pub struct Conventional;
 
@@ -40,6 +63,8 @@ impl Format for Conventional {
     }
 }
 
+/// Nonsense formatting. "That hard drive is totally 1 TB! You're
+/// thinking of a TiB, which is totally different...."
 #[derive(Copy, Clone, Debug, Default)]
 pub struct Decimal;
 
@@ -63,6 +88,7 @@ impl Format for Decimal {
     }
 }
 
+/// Lazy memory size formatter.
 pub struct ByteSizeFormatter<F = Conventional> {
     size: u64,
     fmt: F,
@@ -77,6 +103,9 @@ impl<F: Format> Display for ByteSizeFormatter<F> {
 }
 
 pub trait FmtSize {
+    /// Format a memory size value according to a given format provider.
+    ///
+    /// The formatter resulting from this call is lazy.
     fn fmt_size<F: Format>(self, fmt: F) -> ByteSizeFormatter<F>;
 }
 
