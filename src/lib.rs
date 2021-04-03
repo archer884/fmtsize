@@ -102,6 +102,7 @@ impl<F: Format> Display for ByteSizeFormatter<F> {
     }
 }
 
+/// Allows formatting of integral values (u64) as human-readable sizes.
 pub trait FmtSize {
     /// Format a memory size value according to a given format provider.
     ///
